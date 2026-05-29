@@ -4,10 +4,10 @@ Part of the [VectoSports](https://vectosports.com) platform — AI-powered biome
 
 ## What it does
 
-This service receives athlete video and pose data, runs it through a multi-agent AI pipeline built on **Google ADK + Gemini**, and returns structured biomechanical analysis reports. It is consumed by the VectoSports backend via RabbitMQ / Google Pub-Sub.
+This service receives athlete video and pose data, runs it through a multi-agent AI pipeline built on **Google ADK + Gemini**, and returns structured biomechanical analysis reports. It is consumed by the VectoSports backend via Google Pub/Sub.
 
 ```
-Incoming job (RabbitMQ)
+Incoming job (Google Pub/Sub)
         │
         ▼
   Root Agent (Gemini)
@@ -33,7 +33,7 @@ Additional specialists: Performance Analyst, Nutritionist, Comparison Agent.
 | AI framework | [Google ADK](https://google.github.io/adk-docs/) |
 | LLM | Gemini (via Vertex AI or API key) |
 | API server | FastAPI + Uvicorn |
-| Message queue | RabbitMQ |
+| Message queue | Google Pub/Sub |
 | Storage | Google Cloud Storage |
 | Runtime | Docker / Google Cloud Run |
 
