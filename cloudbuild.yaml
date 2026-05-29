@@ -1,0 +1,39 @@
+steps:
+  # 1. Build da imagem com tags COMMIT_SHA e latest
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE_NAME}:${COMMIT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE_NAME}:latest'
+      - '.'
+
+  # 2. Push da tag específica (SHA)
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push SHA'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE_NAME}:${COMMIT_SHA}'
+
+  # 3. Push da tag latest
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Latest'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE_NAME}:latest'
+
+# Lista de imagens para aparecer no console do Cloud Build e garantir o push
+images:
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE_NAME}:${COMMIT_SHA}'
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE_NAME}:latest'
+
+options:
+  # Corrige o erro de "Could not create logs in Cloud Logging" que ocorre quando não há bucket padrão
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _SERVICE_NAME: ai-processor
+  _REGION: europe-west1
+  _AR_REPO: cloud-run-source-deploy

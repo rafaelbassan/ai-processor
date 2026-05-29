@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # VectoSports AI Worker
+  # ============================================================================
+  vectosports-ai-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vectosports-ai-worker
+    
+    env_file:
+      - .env
+    
+    environment:
+      # Upload Configuration
+      UPLOAD_BASE_DIR: "/data/uploads"
+      JOB_RETENTION_DAYS: "${JOB_RETENTION_DAYS:-7}"
+
+      # RabbitMQ
+      RABBITMQ_HOST: "${RABBITMQ_HOST}"
+      RABBITMQ_USERNAME: "${RABBITMQ_USERNAME}"
+      RABBITMQ_PASSWORD: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_QUEUE: "${RABBITMQ_QUEUE}"
+      RABBITMQ_AI_ERROR_QUEUE: "${RABBITMQ_AI_ERROR_QUEUE:-vectosports_ai_analysis_failed}"
+      RABBITMQ_DISABLE_SSL: "${RABBITMQ_DISABLE_SSL:-true}"
+
+      # Google AI
+      GOOGLE_GENAI_USE_VERTEXAI: "${GOOGLE_GENAI_USE_VERTEXAI:-0}"
+      GOOGLE_API_KEY: "${GOOGLE_API_KEY}"
+    
+    volumes:
+      # Armazenar uploads e dados persistentes
+      - ./data/uploads:/data/uploads
+      - ./logs:/app/logs
+      - ./key:/app/key
+      - ./api:/app/api
+      - ./ai_agents:/app/ai_agents
+    
+    networks:
+      - vectosports-network
+    
+    restart: "no" # Jobs should not restart automatically if they exit on idle
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    
+
+
+networks:
+  vectosports-network:
+    external: true
+    name: vectosports-network
+
+volumes:
+  uploads:
+    driver: local
